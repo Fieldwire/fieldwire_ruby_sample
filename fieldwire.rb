@@ -20,13 +20,17 @@ def build_auth(project_token)
   auth
 end
 
+def build_headers(project_token)
+  return {
+    "Content-Type" => "application/json",
+    "Accept" => "application/json",
+    "Authorization" => build_auth(project_token),
+  }
+end
+
 def get(url, project_token=nil)
   response = HTTParty.get(API_BASE_URL + url, {
-    headers: {
-      "Content-Type" => "application/json",
-      "Accept" => "application/json",
-      "Authorization" => build_auth(project_token),
-    }
+    headers: build_headers(project_token)
   })
 
   JSON.parse(response.body)
@@ -35,11 +39,16 @@ end
 def post(url, project_token, attributes)
   response = HTTParty.post(API_BASE_URL + url, {
     body: attributes.to_json,
-    headers: {
-      "Content-Type" => "application/json",
-      "Accept" => "application/json",
-      "Authorization" => build_auth(project_token),
-    }
+    headers: build_headers(project_token)
+  })
+
+  JSON.parse(response.body)
+end
+
+def patch(url, project_token, attributes)
+  response = HTTParty.patch(API_BASE_URL + url, {
+    body: attributes.to_json,
+    headers: build_headers(project_token)
   })
 
   JSON.parse(response.body)
@@ -81,3 +90,15 @@ task = post("projects/#{ project["id"] }/tasks", project["access_token"],
 
 puts task
 
+#-----------------------------------------------#
+# Update a task
+#-----------------------------------------------#
+
+task = patch("projects/#{ project["id"] }/tasks/#{ task["id"] }", project["access_token"],
+  {
+    priority: 2,
+    due_at: Time.now
+  }
+)
+
+puts task
