@@ -5,7 +5,7 @@ require 'HTTParty'
 # To request an API token, please contact support@fieldwire.net
 API_TOKEN = "" # REPLACE
 
-API_BASE_URL = "https://console.fieldwire.net/api/v2/"
+API_BASE_URL = "https://console.fieldwire.net/api/v3/"
 
 #-----------------------------------------------#
 # Helper methods
