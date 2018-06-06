@@ -1,6 +1,7 @@
 #!/usr/bin/ruby
 
 require 'HTTParty'
+require 'rest-client'
 
 # To request an API token, please contact support@fieldwire.net
 API_TOKEN = "" # REPLACE
@@ -54,6 +55,14 @@ def patch(url, project_token, attributes)
   JSON.parse(response.body)
 end
 
+def postToAws(url, attributes, filename)
+  query = attributes.clone
+  query[:file] = File.new(filename) 
+
+  RestClient.post(url, query) 
+end
+
+
 #-----------------------------------------------#
 # List projects
 #-----------------------------------------------#
@@ -102,3 +111,18 @@ task = patch("projects/#{ project["id"] }/tasks/#{ task["id"] }", project["acces
 )
 
 puts task
+
+#-----------------------------------------------#
+# Get a token to post a file directly to aws 
+#-----------------------------------------------#
+
+aws_post_token = post("projects/#{ project["id"] }/aws_post_tokens", project["access_token"], {})
+puts aws_post_token
+
+#-----------------------------------------------#
+# Post a file directly to aws using token
+#-----------------------------------------------#
+
+response = postToAws(aws_post_token['post_address'], aws_post_token['post_parameters'], "") # REPLACE
+puts response
+

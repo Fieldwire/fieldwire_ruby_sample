@@ -1,5 +1,6 @@
 source 'https://rubygems.org'
 
-ruby '2.0.0'
+ruby '2.4.1'
 
-gem 'httparty'
+gem 'httparty', '0.14.0'
+gem 'rest-client'
