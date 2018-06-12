@@ -4,11 +4,9 @@ require 'HTTParty'
 require 'rest-client'
 
 # To request an API token, please contact support@fieldwire.net
-API_TOKEN = "f414fd23cb902799c492929f465211be" # REPLACE
-# API_TOKEN = "" # REPLACE
+API_TOKEN = "" # REPLACE
 
-# API_BASE_URL = "https://console.fieldwire.net/api/v3/"
-API_BASE_URL = "http://localhost:3000/api/v3/"
+API_BASE_URL = "https://console.fieldwire.net/api/v3/"
 
 #-----------------------------------------------#
 # Helper methods
@@ -78,51 +76,50 @@ end
 # List projects
 #-----------------------------------------------#
 
-projects = get("projects")
-puts projects 
-project = projects[0]
+puts get("projects")
+
 #-----------------------------------------------#
 # Create a new project
 #-----------------------------------------------#
 
-# project = post("projects", nil, { name: "New project" })
-# puts project
-#  
-# #-----------------------------------------------#
-# # Invite a user
-# #-----------------------------------------------#
-# 
-# response = post("projects/#{ project["id"] }/users/invite", project["access_token"], { email: "" }) # REPLACE
-# user = response["users"][0]
-# puts user
-# 
-# #-----------------------------------------------#
-# # Add a task
-# #-----------------------------------------------#
-# 
-# task = post("projects/#{ project["id"] }/tasks", project["access_token"],
-#   {
-#     name: "Todo",
-#     priority: 1,
-#     owner_user_id: user["id"],
-#     is_local: false,
-#   }
-# )
-# 
-# puts task
-# 
-# #-----------------------------------------------#
-# # Update a task
-# #-----------------------------------------------#
-# 
-# task = patch("projects/#{ project["id"] }/tasks/#{ task["id"] }", project["access_token"],
-#   {
-#     priority: 2,
-#     due_at: Time.now
-#   }
-# )
-# 
-# puts task
+project = post("projects", nil, { name: "New project" })
+puts project
+
+#-----------------------------------------------#
+# Invite a user
+#-----------------------------------------------#
+
+response = post("projects/#{ project["id"] }/users/invite", project["access_token"], { email: "" }) # REPLACE
+user = response["users"][0]
+puts user
+
+#-----------------------------------------------#
+# Add a task
+#-----------------------------------------------#
+
+task = post("projects/#{ project["id"] }/tasks", project["access_token"],
+  {
+    name: "Todo",
+    priority: 1,
+    owner_user_id: user["id"],
+    is_local: false,
+  }
+)
+
+puts task
+
+#-----------------------------------------------#
+# Update a task
+#-----------------------------------------------#
+
+task = patch("projects/#{ project["id"] }/tasks/#{ task["id"] }", project["access_token"],
+  {
+    priority: 2,
+    due_at: Time.now
+  }
+)
+
+puts task
 
 #-----------------------------------------------#
 # Get a token to post a file directly to aws 
@@ -135,7 +132,7 @@ puts aws_post_token
 # Post a file directly to aws using token
 #-----------------------------------------------#
 
-file_name = "A2.01-1.pdf"
+file_name = "" # REPLACE
 response = postToAws(aws_post_token['post_address'], aws_post_token['post_parameters'], file_name) 
 
 file_url = response
@@ -146,7 +143,7 @@ if file_url
       "name": File.basename(file_name), 
       "file_url": file_url,
       "file_size": File.size(file_name),
-      "user_id": 1
+      "user_id": user["id"]
     }
   )
   puts "======================="
