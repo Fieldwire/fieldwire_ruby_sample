@@ -1,6 +1,7 @@
 #!/usr/bin/ruby
 
-require 'HTTParty'
+require 'rest-client'
+require 'json'
 
 # To request an API token, please contact support@fieldwire.net
 API_TOKEN = "" # REPLACE
@@ -29,30 +30,47 @@ def build_headers(project_token)
 end
 
 def get(url, project_token=nil)
-  response = HTTParty.get(API_BASE_URL + url, {
-    headers: build_headers(project_token)
-  })
+  response = RestClient.get(API_BASE_URL + url,
+    build_headers(project_token)
+  )
 
   JSON.parse(response.body)
 end
 
 def post(url, project_token, attributes)
-  response = HTTParty.post(API_BASE_URL + url, {
-    body: attributes.to_json,
-    headers: build_headers(project_token)
-  })
+  response = RestClient.post(API_BASE_URL + url,
+    attributes.to_json,
+    build_headers(project_token)
+  )
 
   JSON.parse(response.body)
 end
 
 def patch(url, project_token, attributes)
-  response = HTTParty.patch(API_BASE_URL + url, {
-    body: attributes.to_json,
-    headers: build_headers(project_token)
-  })
+  response = RestClient.patch(API_BASE_URL + url,
+    attributes.to_json,
+    build_headers(project_token)
+  )
 
   JSON.parse(response.body)
 end
+
+def post_to_aws(url, attributes, filename)
+  query = attributes.clone
+  file = File.new(filename)
+  query[:file] = file
+
+  response = RestClient.post(url + '/', query)
+  if (response.code == 200) || (response.code == 204)
+    return "#{url}/#{attributes['key'].gsub('${filename}',File.basename(filename))}" 
+  else
+    # You can have a look at https://docs.aws.amazon.com/AmazonS3/latest/API/ErrorResponses.html here
+    # Mainly, 403 (forbidden) means that you have modified the attributes parameters, 
+    # where as 400 (bad request) can mean your token has expired, and or you file is oversized
+    return nil
+  end
+end
+
 
 #-----------------------------------------------#
 # List projects
@@ -102,3 +120,34 @@ task = patch("projects/#{ project["id"] }/tasks/#{ task["id"] }", project["acces
 )
 
 puts task
+
+#-----------------------------------------------#
+# Get a token to post a file directly to aws 
+#-----------------------------------------------#
+
+aws_post_token = post("aws_post_tokens", nil, {})
+puts aws_post_token
+
+#-----------------------------------------------#
+# Post a file directly to aws using token
+#-----------------------------------------------#
+
+file_name = "" # REPLACE
+response = post_to_aws(aws_post_token['post_address'], aws_post_token['post_parameters'], file_name) 
+
+file_url = response
+
+if file_url
+  sheet_upload = post("projects/#{ project["id"] }/sheet_uploads", project["access_token"],
+    {
+      "name": File.basename(file_name), 
+      "file_url": file_url,
+      "file_size": File.size(file_name),
+      "user_id": user["id"]
+    }
+  )
+  puts "======================="
+
+  puts sheet_upload
+end
+
