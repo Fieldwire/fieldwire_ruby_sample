@@ -1,7 +1,7 @@
 #!/usr/bin/ruby
 
-require 'HTTParty'
 require 'rest-client'
+require 'json'
 
 # To request an API token, please contact support@fieldwire.net
 API_TOKEN = "" # REPLACE
@@ -30,32 +30,32 @@ def build_headers(project_token)
 end
 
 def get(url, project_token=nil)
-  response = HTTParty.get(API_BASE_URL + url, {
-    headers: build_headers(project_token)
-  })
+  response = RestClient.get(API_BASE_URL + url,
+    build_headers(project_token)
+  )
 
   JSON.parse(response.body)
 end
 
 def post(url, project_token, attributes)
-  response = HTTParty.post(API_BASE_URL + url, {
-    body: attributes.to_json,
-    headers: build_headers(project_token)
-  })
+  response = RestClient.post(API_BASE_URL + url,
+    attributes.to_json,
+    build_headers(project_token)
+  )
 
   JSON.parse(response.body)
 end
 
 def patch(url, project_token, attributes)
-  response = HTTParty.patch(API_BASE_URL + url, {
-    body: attributes.to_json,
-    headers: build_headers(project_token)
-  })
+  response = RestClient.patch(API_BASE_URL + url,
+    attributes.to_json,
+    build_headers(project_token)
+  )
 
   JSON.parse(response.body)
 end
 
-def postToAws(url, attributes, filename)
+def post_to_aws(url, attributes, filename)
   query = attributes.clone
   file = File.new(filename)
   query[:file] = file
@@ -133,7 +133,7 @@ puts aws_post_token
 #-----------------------------------------------#
 
 file_name = "" # REPLACE
-response = postToAws(aws_post_token['post_address'], aws_post_token['post_parameters'], file_name) 
+response = post_to_aws(aws_post_token['post_address'], aws_post_token['post_parameters'], file_name) 
 
 file_url = response
 
