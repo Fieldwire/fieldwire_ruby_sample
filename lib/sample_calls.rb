@@ -37,9 +37,6 @@ module Fieldwire
 
     # Regional endpoints are used for projects, templates etc.
     private_class_method def execute_sample_regional_calls(token_manager:, region:, email_for_project_invite:, local_file_path_for_plan:)
-      # The `region` value below could `REGION_EU` to store/access data from the
-      # EU servers. More info can be found here:
-      # https://help.fieldwire.com/hc/en-us/articles/18799416373531
       regional_client = Fieldwire::RegionalClient.new(
         token_manager: token_manager,
         region: region
@@ -67,7 +64,7 @@ module Fieldwire
       log_info(purpose: 'Created project', data: project)
 
       #-----------------------------------------------#
-      # Invite a user to a user
+      # Invite a user to a project
       #-----------------------------------------------#
       response = regional_client.post(
         url: "projects/#{project['id']}/users/invite",
@@ -108,7 +105,7 @@ module Fieldwire
       log_info(purpose: 'Updated task', data: task)
 
       #-----------------------------------------------#
-      # Upload a plan to a project. Mutliple steps:
+      # Upload a plan to a project. Multiple steps:
       #   - upload a plan to Fieldwire's S3 bucket
       #   - inform Fieldwire about the upload plan
       #-----------------------------------------------#
