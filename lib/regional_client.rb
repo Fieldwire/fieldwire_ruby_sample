@@ -81,7 +81,7 @@ module Fieldwire
       else
         # You can have a look at https://docs.aws.amazon.com/AmazonS3/latest/API/ErrorResponses.html here
         # Mainly, 403 (forbidden) means that you have modified the attributes parameters,
-        # where as 400 (bad request) can mean your token has expired, and or you file is oversized
+        # where as 400 (bad request) can mean your token has expired, and/or you file is oversized
         return nil
       end
     end
